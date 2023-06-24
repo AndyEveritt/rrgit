@@ -43,12 +43,19 @@ class FileObj():
     def getRemoteData(self, dwa):
         if self.type == FileType.Remote:
             if self.name is not None and self.dir is not None:
-                fi = dwa.get_fileinfo(self.name, self.dir)
-                lm = re.search(r'(\d{4}-\d{2}-\d{2}T\d{2}\:\d{2}\:\d{2})', fi['lastModified']).group(1)
-                lm = datetime.strptime(lm, TIMESTAMP_FMT)
-                lm = datetime.timestamp(lm)
+                # there is a bug in RRF 3.5 that prevents getting fileinfo if there is specific conditional gcode in file
+                try:
+                    fi = dwa.get_fileinfo(self.name, self.dir)
+                    lm = re.search(r'(\d{4}-\d{2}-\d{2}T\d{2}\:\d{2}\:\d{2})', fi['lastModified']).group(1)
+                    lm = datetime.strptime(lm, TIMESTAMP_FMT)
+                    lm = datetime.timestamp(lm)
+                    size = fi['size']
+                except ValueError:
+                    warn(f'Could not get file info for {self.name} in {self.dir}')
+                    lm = datetime.timestamp(datetime.now())
+                    size = 0
                 self.setTime(lm)
-                self.setSize(fi['size'])
+                self.setSize(size)
                 
     def getFileData(self, dwa):
         return dwa.get_file(self.name, self.dir, True)
