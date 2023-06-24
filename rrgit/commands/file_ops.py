@@ -6,6 +6,7 @@ import copy
 import pathspec
 
 import os
+import re
 from datetime import datetime
 
 import difflib
@@ -43,7 +44,8 @@ class FileObj():
         if self.type == FileType.Remote:
             if self.name is not None and self.dir is not None:
                 fi = dwa.get_fileinfo(self.name, self.dir)
-                lm = datetime.strptime(fi['lastModified'], TIMESTAMP_FMT)
+                lm = re.search(r'(\d{4}-\d{2}-\d{2}T\d{2}\:\d{2}\:\d{2})', fi['lastModified']).group(1)
+                lm = datetime.strptime(lm, TIMESTAMP_FMT)
                 lm = datetime.timestamp(lm)
                 self.setTime(lm)
                 self.setSize(fi['size'])
