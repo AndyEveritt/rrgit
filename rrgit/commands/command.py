@@ -31,7 +31,9 @@ class Command():
             self.dwa = DWA(host_path)
             dirs = self.dwa.get_model('directories')
             for d in dirs:
-                self.directories.append(dirs[d][3:-1])
+                if dirs[d][-1] == '/':
+                    dirs[d] = dirs[d][:-1]
+                self.directories.append(dirs[d][3:])
             self.directories = list(set(self.directories)) # remove dupes
             success(f'Connected to {self.cfg.hostname}')
         except ValueError as e:
