@@ -1,3 +1,5 @@
+import re
+
 from .. log import *
 from .. util import rrgit_error
 from duetwebapi import DuetWebAPI as DWA
@@ -29,11 +31,12 @@ class Command():
         try:
             host_path = f'http://{self.cfg.hostname}'
             self.dwa = DWA(host_path)
+            self.dwa.connect()
             dirs = self.dwa.get_model('directories')
             for d in dirs:
-                if dirs[d][-1] == '/':
-                    dirs[d] = dirs[d][:-1]
-                self.directories.append(dirs[d][3:])
+                dir_path = re.search(r'\d+\:\/(\w+)', dirs[d])
+                if dir_path:
+                    self.directories.append(dir_path.group(1))
             self.directories = list(set(self.directories)) # remove dupes
             success(f'Connected to {self.cfg.hostname}')
         except ValueError as e:
