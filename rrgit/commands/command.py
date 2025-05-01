@@ -31,6 +31,7 @@ class Command():
         try:
             host_path = f'http://{self.cfg.hostname}'
             self.dwa = DWA(host_path)
+            self.dwa.connect()
             dirs = self.dwa.get_model('directories')
             for d in dirs:
                 dir_path = re.search(r'\d+\:\/(\w+)', dirs[d])
